@@ -40,7 +40,7 @@ async function run() {
             const tools = await partsCollection.find(query).toArray()
             res.send(tools)
         })
-
+        // user 
         app.put('/users/:email', async (req, res) => {
             const email = req.params.email
             const user = req.body
@@ -54,6 +54,13 @@ async function run() {
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN)
             res.send({ updateUser, token })
 
+        })
+        // get all user by admin 
+
+        app.get('/users', async (req, res) => {
+            const query = {}
+            const users = await usersCollection.find(query).toArray()
+            res.send(users)
         })
         // insert orders
         app.post('/orders', async (req, res) => {
@@ -71,6 +78,7 @@ async function run() {
             res.send(orderComplete)
 
         })
+
         // get orders for specific email or user 
         app.get('/orders', verifyJWT, async (req, res) => {
             const email = req.query.email
