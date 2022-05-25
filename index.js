@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
 import jwt from 'jsonwebtoken';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -35,10 +35,26 @@ async function run() {
         const partsCollection = client.db("ElectricTools").collection("tools")
         const orderCollection = client.db("ElectricTools").collection("orders")
         const usersCollection = client.db("ElectricTools").collection("users")
+
         app.get('/tools', async (req, res) => {
             const query = {}
             const tools = await partsCollection.find(query).toArray()
             res.send(tools)
+        })
+        // add products
+        app.post('/tools', async (req, res) => {
+            const data = req.body
+            const addComplete = await partsCollection.insertOne(data)
+            res.send(addComplete)
+
+        })
+        app.delete('/tools/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+
+            const deleteParts = await partsCollection.deleteOne(filter)
+            res.send(deleteParts)
+
         })
         // user 
         app.put('/users/:email', async (req, res) => {
@@ -56,6 +72,26 @@ async function run() {
 
         })
         // get all user by admin 
+        app.put('/users/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email
+
+            const filter = { email: email }
+            const updatedDoc = {
+                $set: { role: 'admin' }
+            }
+
+            const updateUser = await usersCollection.updateOne(filter, updatedDoc)
+
+            res.send(updateUser)
+
+        })
+
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await usersCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin })
+        })
 
         app.get('/users', async (req, res) => {
             const query = {}
