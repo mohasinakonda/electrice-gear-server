@@ -116,8 +116,15 @@ async function run() {
             res.send({ admin: isAdmin })
         })
 
-        app.get('/users', verifyJWT, async (req, res) => {
+        app.get('/users', async (req, res) => {
+
             const query = {}
+            const users = await usersCollection.find(query).toArray()
+            res.send(users)
+        })
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
             const users = await usersCollection.find(query).toArray()
             res.send(users)
         })
@@ -132,7 +139,7 @@ async function run() {
 
         })
         // get all all orders
-        app.get('/orders', async (req, res) => {
+        app.get('/orders', verifyJWT, async (req, res) => {
 
             const orderComplete = await orderCollection.find().toArray()
             res.send(orderComplete)
