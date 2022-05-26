@@ -97,7 +97,9 @@ async function run() {
                 $set: {
                     city: data.city,
                     country: data.country,
-                    age: data.age
+                    age: data.age,
+                    img: data.img
+
                 }
             }
 
