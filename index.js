@@ -172,6 +172,7 @@ async function run() {
             const query = {}
             const review = await reviewsCollection.find(query).toArray()
             res.send(review)
+            console.log('')
         })
 
     } finally {
