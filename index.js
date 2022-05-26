@@ -45,6 +45,7 @@ async function run() {
         // add products
         app.post('/tools', async (req, res) => {
             const data = req.body
+            console.log(data)
             const addComplete = await partsCollection.insertOne(data)
             res.send(addComplete)
 
@@ -172,7 +173,7 @@ async function run() {
             const query = {}
             const review = await reviewsCollection.find(query).toArray()
             res.send(review)
-            console.log('')
+
         })
 
     } finally {
