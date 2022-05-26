@@ -48,6 +48,7 @@ async function run() {
             res.send(addComplete)
 
         })
+        // delete products 
         app.delete('/tools/:id', async (req, res) => {
             const id = req.params.id
             const filter = { _id: ObjectId(id) }
@@ -56,7 +57,7 @@ async function run() {
             res.send(deleteParts)
 
         })
-        // user 
+        // create  user 
         app.put('/users/:email', async (req, res) => {
             const email = req.params.email
             const user = req.body
@@ -86,6 +87,25 @@ async function run() {
 
         })
 
+        app.put('/users/update/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email
+            const data = req.body
+            console.log(data)
+            const filter = { email: email }
+            const updatedDoc = {
+                $set: {
+                    city: data.city,
+                    country: data.country,
+                    age: data.age
+                }
+            }
+
+            const updateUser = await usersCollection.updateOne(filter, updatedDoc)
+
+            res.send(updateUser)
+
+        })
+
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
             const user = await usersCollection.findOne({ email: email });
@@ -98,8 +118,9 @@ async function run() {
             const users = await usersCollection.find(query).toArray()
             res.send(users)
         })
+
         // insert orders
-        app.post('/orders', async (req, res) => {
+        app.put('/orders', async (req, res) => {
             const data = req.body
             const { name, img, price, stock, quantity, email } = data
             const doc = { name, email, img, price, stock, quantity, paid: false }
@@ -116,12 +137,18 @@ async function run() {
         })
 
         // get orders for specific email or user 
-        app.get('/orders', verifyJWT, async (req, res) => {
-            const email = req.query.email
-            const filter = { email: email }
-            const orderComplete = await orderCollection.find(filter).toArray()
-            res.send(orderComplete)
 
+        app.get('/order', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const orders = await orderCollection.find(query).toArray();
+                return res.send(orders);
+            }
+            else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
         })
     } finally {
 
