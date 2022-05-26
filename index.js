@@ -4,6 +4,9 @@ import 'dotenv/config'
 import jwt from 'jsonwebtoken';
 import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 
+import Stripe from 'stripe';
+const stripe=new Stripe(process.env.STRIPE_SECRET)
+
 const app = express()
 const PORT = process.env.PORT || 5000
 //midlewere
@@ -154,6 +157,7 @@ async function run() {
             res.send(orderComplete)
 
         })
+       
 
         // get orders for specific email or user 
 
@@ -183,6 +187,24 @@ async function run() {
             res.send(review)
 
         })
+        // -------------------stripe payment-------------
+
+        
+        app.post("/create-payment-intent", async (req, res) => {
+            const amount = req.body;
+            const price=amount*100
+          
+            
+            const paymentIntent = await stripe.paymentIntents.create({
+              amount: calculateOrderAmount(price),
+              currency: "usd",
+              payment_methods_types:['card']
+            });
+          
+            res.send({
+              clientSecret: paymentIntent.client_secret,
+            });
+          });
 
     } finally {
 
