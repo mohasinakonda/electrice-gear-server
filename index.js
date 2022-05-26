@@ -35,6 +35,7 @@ async function run() {
         const partsCollection = client.db("ElectricTools").collection("tools")
         const orderCollection = client.db("ElectricTools").collection("orders")
         const usersCollection = client.db("ElectricTools").collection("users")
+        const reviewsCollection = client.db("ElectricTools").collection("reviews")
 
         app.get('/tools', async (req, res) => {
             const query = {}
@@ -90,7 +91,7 @@ async function run() {
         app.put('/users/update/:email', verifyJWT, async (req, res) => {
             const email = req.params.email
             const data = req.body
-            console.log(data)
+
             const filter = { email: email }
             const updatedDoc = {
                 $set: {
@@ -113,7 +114,7 @@ async function run() {
             res.send({ admin: isAdmin })
         })
 
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyJWT, async (req, res) => {
             const query = {}
             const users = await usersCollection.find(query).toArray()
             res.send(users)
@@ -150,6 +151,14 @@ async function run() {
                 return res.status(403).send({ message: 'forbidden access' });
             }
         })
+
+        //------------------ reviews ---------------------
+        app.post('/review', async (req, res) => {
+            const data = req.body
+            const review = await reviewsCollection.insertOne(data)
+            res.send(review)
+        })
+
     } finally {
 
     }
