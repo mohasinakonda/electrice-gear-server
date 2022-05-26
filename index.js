@@ -147,6 +147,14 @@ async function run() {
 
         })
 
+        app.get('/orders/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const orderComplete = await orderCollection.find(filter).toArray()
+            res.send(orderComplete)
+
+        })
+
         // get orders for specific email or user 
 
         app.get('/order', verifyJWT, async (req, res) => {
