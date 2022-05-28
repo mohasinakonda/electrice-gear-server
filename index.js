@@ -215,7 +215,7 @@ async function run() {
         app.get('/blogs/:id', async (req, res) => {
             const id = req.params.id
             const filter = { _id: ObjectId(id) }
-            const blog = await blogsCollection.findOne(filter).toArray()
+            const blog = await blogsCollection.find(filter).toArray()
             res.send(blog)
         })
 
