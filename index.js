@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 
 import Stripe from 'stripe';
-const stripe=new Stripe(process.env.STRIPE_SECRET)
+const stripe = new Stripe(process.env.STRIPE_SECRET)
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -39,6 +39,7 @@ async function run() {
         const orderCollection = client.db("ElectricTools").collection("orders")
         const usersCollection = client.db("ElectricTools").collection("users")
         const reviewsCollection = client.db("ElectricTools").collection("reviews")
+        const blogsCollection = client.db("ElectricTools").collection("blogs")
 
         app.get('/tools', async (req, res) => {
             const query = {}
@@ -150,14 +151,14 @@ async function run() {
 
         })
 
-        app.get('/orders/:id', verifyJWT, async (req, res) => {
+        app.get('/orders/:id', async (req, res) => {
             const id = req.params.id
             const filter = { _id: ObjectId(id) }
             const orderComplete = await orderCollection.find(filter).toArray()
             res.send(orderComplete)
 
         })
-       
+
 
         // get orders for specific email or user 
 
@@ -189,22 +190,35 @@ async function run() {
         })
         // -------------------stripe payment-------------
 
-        
+
         app.post("/create-payment-intent", async (req, res) => {
             const amount = req.body;
-            const price=amount*100
-          
-            
+            const price = amount * 100
+
+
             const paymentIntent = await stripe.paymentIntents.create({
-              amount: calculateOrderAmount(price),
-              currency: "usd",
-              payment_methods_types:['card']
+                amount: calculateOrderAmount(price),
+                currency: "usd",
+                payment_methods_types: ['card']
             });
-          
+
             res.send({
-              clientSecret: paymentIntent.client_secret,
+                clientSecret: paymentIntent.client_secret,
             });
-          });
+        });
+
+        //   --------blogs------------
+        app.get('/blogs', async (req, res) => {
+            const blogs = await blogsCollection.find().toArray()
+            res.send(blogs)
+        })
+        app.get('/blogs/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const blog = await blogsCollection.findOne(filter).toArray()
+            res.send(blog)
+        })
+
 
     } finally {
 
