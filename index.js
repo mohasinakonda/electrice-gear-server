@@ -169,14 +169,14 @@ async function run() {
 
         })
         // update order status 
-        app.put('order/update/:id', async (req, res) => {
+        /* app.put('order/update/:id', async (req, res) => {
             const id = req.params.id
             const filter = { _id: ObjectId(id) }
             const doc = { paid: true }
             const updatePayments = await orderCollection.updateOne(filter, doc)
             res.send(updatePayments)
 
-        })
+        }) */
         // get orders for specific email or user 
 
         app.get('/order', verifyJWT, async (req, res) => {
@@ -234,7 +234,7 @@ async function run() {
 
                 }
             }
-            const payment = await paymentCollection.insertOne(data)
+            // const payment = await paymentCollection.insertOne(data)
             const updatePaymentsId = await orderCollection.updateOne(filter, doc)
             res.send(updatePaymentsId)
         })
