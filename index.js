@@ -223,20 +223,20 @@ async function run() {
         });
 
 
-        app.patch('/orders/:id', verifyJWT, (req, res) => {
-            const id = req.params.id
-            const data = req.body
-            const filter = { _id: ObjectId(id) }
-            const doc = {
+        app.patch('/booking/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const payment = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedDoc = {
                 $set: {
                     paid: true,
-                    transectionId: data.transectionId
-
+                    transactionId: payment.transactionId
                 }
             }
-            // const payment = await paymentCollection.insertOne(data)
-            const updatePaymentsId = await orderCollection.updateOne(filter, doc)
-            res.send(updatePaymentsId)
+
+            const result = await paymentCollection.insertOne(payment);
+            const updatedBooking = await orderCollection.updateOne(filter, updatedDoc);
+            res.send(updatedBooking);
         })
         //   --------blogs------------
         app.get('/blogs', async (req, res) => {
