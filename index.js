@@ -39,6 +39,7 @@ async function run() {
         const orderCollection = client.db("ElectricTools").collection("orders")
         const usersCollection = client.db("ElectricTools").collection("users")
         const reviewsCollection = client.db("ElectricTools").collection("reviews")
+        const paymentCollection = client.db("ElectricTools").collection("payment")
         const blogsCollection = client.db("ElectricTools").collection("blogs")
 
         app.get('/tools', async (req, res) => {
@@ -221,6 +222,22 @@ async function run() {
             });
         });
 
+
+        app.patch('/orders/:id', verifyJWT, (req, res) => {
+            const id = req.params.id
+            const data = req.body
+            const filter = { _id: ObjectId(id) }
+            const doc = {
+                $set: {
+                    paid: true,
+                    transectionId: data.transectionId
+
+                }
+            }
+            const payment = await paymentCollection.insertOne(data)
+            const updatePaymentsId = await orderCollection.updateOne(filter, doc)
+            res.send(updatePaymentsId)
+        })
         //   --------blogs------------
         app.get('/blogs', async (req, res) => {
             const blogs = await blogsCollection.find().toArray()
