@@ -158,8 +158,24 @@ async function run() {
             res.send(orderComplete)
 
         })
+        // delete order 
+        app.delete('/orders/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
 
+            const deleteParts = await orderCollection.deleteOne(filter)
+            res.send(deleteParts)
 
+        })
+        // update order status 
+        app.put('order/update/:id', async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const doc = { paid: true }
+            const updatePayments = await orderCollection.updateOne(filter, doc)
+            res.send(updatePayments)
+
+        })
         // get orders for specific email or user 
 
         app.get('/order', verifyJWT, async (req, res) => {
