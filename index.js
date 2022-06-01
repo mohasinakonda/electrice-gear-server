@@ -13,6 +13,14 @@ const PORT = process.env.PORT || 5000
 app.use(express.json())
 app.use(cors())
 
+
+app.use((req, res, next) => {
+    res.setHeader('Acces-Control-Allow-Origin', '*');
+    res.setHeader('Acces-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE');
+    res.setHeader('Acces-Contorl-Allow-Methods', 'Content-Type', 'Authorization');
+    next();
+})
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rqmun.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -210,6 +218,7 @@ async function run() {
 
         app.post("/create-payment-intent", async (req, res) => {
             const amount = req.body.price;
+            console.log(amount)
             const price = amount * 100
             const paymentIntent = await stripe.paymentIntents.create({
                 price: price,
@@ -226,6 +235,7 @@ async function run() {
         app.patch('/orders/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const payment = req.body;
+            console.log(payment)
             const filter = { _id: ObjectId(id) };
             const updatedDoc = {
                 $set: {
